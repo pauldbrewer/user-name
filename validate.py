@@ -1,4 +1,4 @@
-#passw = ""
+
 
 def user_valid(user):
     if user:

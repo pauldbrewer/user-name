@@ -53,9 +53,9 @@ class MainHandler(webapp2.RequestHandler):
         email = cgi.escape(self.request.get("email"))
         evalid = validate.emai_valid(email)
         valid = ""
-        congrats = "You have succefully logged on"
+        #congrats =
         if uvalid == True and pvalid == True and cvalid == True and evalid == True:
-            valid = congrats
+            self.redirect("/welcome")
         else:
             if uvalid != True:
                 valid = uvalid
@@ -65,13 +65,22 @@ class MainHandler(webapp2.RequestHandler):
 
             if cvalid != True:
                 valid += cvalid
-                
+
             if evalid != True:
                 valid += evalid
         content = build_page(self)
         contents = content + valid
         self.response.write(contents)
 
+class WelcomeHandler(webapp2.RequestHandler):
+    def get(self):
+        user = self.request.get("username")
+        sentance = "Welcome," + user + "!"
+        #welcome_content = "<form method='post'>Welcome,"'<h1>' + user + '</h1>'"!</form>"
+
+        self.response.write(sentance)
+
 app = webapp2.WSGIApplication([
-    ('/', MainHandler)
+    ('/', MainHandler),
+    ('/welcome', WelcomeHandler)
 ], debug=True)
