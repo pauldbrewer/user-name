@@ -17,16 +17,27 @@
 import webapp2
 import cgi
 import validate
+import logging
 
-def build_page(self):
-
-    username = "Username:<input style='width: 100px' name='username'/>"
-
-    password = "Password:<input type='password' style='width: 100px' name='password'/>"
-
-    confirm = "Confirm:<input type='password' style='width: 100px' name='confirm'/>"
-
-    email = "E-mail:<input style='width: 100px' name='email'/>"
+def build_page(self, pusername, pusererror, ppasserror, pconerror, peerror):
+    if pusererror:
+        username = "Username:<input style='width: 100px' name='username' value='"+pusername+"'>'"+pusererror+"'</>"
+    elif pusername:
+        username = "Username:<input style='width: 100px' name='username' value='"+pusername+"'/>"
+    else:
+        username = "Username:<input style='width: 100px' name='username'/>"
+    if ppasserror:
+        password = "Password:<input type='password' style='width: 100px' name='password'>'"+ppasserror+"'</>"
+    else:
+        password = "Password:<input type='password' style='width: 100px' name='password'/>"
+    if pconerror:
+        confirm = "Confirm:<input type='password' style='width: 100px' name='confirm'>'"+pconerror+"'</>"
+    else:
+        confirm = "Confirm:<input type='password' style='width: 100px' name='confirm'/>"
+    if peerror:
+        email = "E-mail:<input style='width: 100px' name='email'>'"+peerror+"'</>"
+    else:
+        email = "E-mail:<input style='width: 100px' name='email'/>"
 
     submit = "<input type='submit'/>"
 
@@ -40,7 +51,7 @@ def build_page(self):
 
 class MainHandler(webapp2.RequestHandler):
     def get(self):
-        content = build_page("")
+        content = build_page("", "", "", "", "", "")
         self.response.write(content)
 
     def post(self):
@@ -52,32 +63,29 @@ class MainHandler(webapp2.RequestHandler):
         cvalid = validate.conf_valid(confirm, password)
         email = cgi.escape(self.request.get("email"))
         evalid = validate.emai_valid(email)
-        valid = ""
-        #congrats =
+        user_name = user
+        u_valid = ""
+        p_valid = ""
+        c_valid = ""
+        e_valid = ""
         if uvalid == True and pvalid == True and cvalid == True and evalid == True:
-            self.redirect("/welcome")
+            self.redirect("/welcome?username="+user)
         else:
             if uvalid != True:
-                valid = uvalid
-
+                u_valid = uvalid
             if pvalid != True:
-                valid += pvalid
-
+                p_valid = pvalid
             if cvalid != True:
-                valid += cvalid
-
+                c_valid = cvalid
             if evalid != True:
-                valid += evalid
-        content = build_page(self)
-        contents = content + valid
-        self.response.write(contents)
+                e_valid = evalid
+        content = build_page(self, user, u_valid, p_valid, c_valid, e_valid)
+        self.response.write(content)
 
 class WelcomeHandler(webapp2.RequestHandler):
     def get(self):
-        user = self.request.get("username")
-        sentance = "Welcome," + user + "!"
-        #welcome_content = "<form method='post'>Welcome,"'<h1>' + user + '</h1>'"!</form>"
-
+        user_name = self.request.get("username")
+        sentance = "Welcome," + user_name + "!"
         self.response.write(sentance)
 
 app = webapp2.WSGIApplication([
